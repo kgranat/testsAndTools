@@ -91,6 +91,38 @@ void setup(){
  
 
 
+  //read analog inputs - you may want to add in averaging here
+  potBaseVal =  analogRead(BASE_ANALOG_PIN);
+  potShoulderVal =  analogRead(SHOULDER_ANALOG_PIN); 
+  potElbowVal = analogRead(ELBOW_ANALOG_PIN); 
+  potGripperVal = analogRead(WRIST_ANALOG_PIN); 
+  potWristVal = analogRead(GRIPPER_ANALOG_PIN); 
+
+
+  delay(2000); // delay before reading pose, you may be able to reduce this
+  bioloid.poseSize = 8;//8 servos, so the pose size will be 8
+  bioloid.readPose();//find where the servos are currently
+  
+  //prepare next pose
+  bioloid.setNextPose(BASE_SERVO,1023-potBaseVal);//prepare the PAN servo
+  bioloid.setNextPose(SHOULDER_SERVO_1,potShoulderVal);
+  bioloid.setNextPose(SHOULDER_SERVO_2,1023-potShoulderVal);
+  bioloid.setNextPose(ELBOW_SERVO_1,potElbowVal);
+  bioloid.setNextPose(ELBOW_SERVO_2,potElbowVal);
+  bioloid.setNextPose(WRIST_ANGLE_SERVO,1023-potWristVal);
+  bioloid.setNextPose(WRIST_ROT_SERVO,512);
+  bioloid.setNextPose(GRIPPER,512-potGripperVal);
+  
+  bioloid.interpolateSetup(5000);//setup for interpolation from the current position to the positions set in setNextPose, over 2000ms
+  while(bioloid.interpolating > 0)  //until we have reached the positions set in setNextPose, execute the instructions in this loop
+  {
+    bioloid.interpolateStep();//move servos 1 'step
+    delay(3);
+  }
+  
+      
+  
+  
 
 }
 
